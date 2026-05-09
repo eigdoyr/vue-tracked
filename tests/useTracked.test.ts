@@ -31,4 +31,49 @@ describe("useTracked", () => {
     const count = useTracked(source, "count", { dev: false });
     expect(count).toBe(source);
   });
+
+  it("records multiple changes in order", async () => {
+    const count = useTracked(ref(0), "count");
+    count.value = 1;
+    await nextTick();
+    count.value = 2;
+    await nextTick();
+
+    const { history } = useTrackedHistory();
+    expect(history.value.length).toBe(2);
+    expect(history.value[0].to).toBe(1);
+    expect(history.value[1].to).toBe(2);
+  });
+
+  it("does not record an entry if value did not change", async () => {
+    const count = useTracked(ref(0), "count");
+    count.value = 0;
+    await nextTick();
+
+    const { history } = useTrackedHistory();
+    expect(history.value.length).toBe(0);
+  });
+
+  it("each entry has a timestamp", async () => {
+    const count = useTracked(ref(0), "count");
+    count.value = 1;
+    await nextTick();
+
+    const { history } = useTrackedHistory();
+    expect(typeof history.value[0].timestamp).toBe("number");
+  });
+
+  it("tracks multiple named refs independently", async () => {
+    const count = useTracked(ref(0), "count");
+    const name = useTracked(ref(""), "name");
+
+    count.value = 1;
+    await nextTick();
+    name.value = "eigdoyr";
+    await nextTick();
+
+    const { history } = useTrackedHistory();
+    expect(history.value[0].name).toBe("count");
+    expect(history.value[1].name).toBe("name");
+  });
 });
