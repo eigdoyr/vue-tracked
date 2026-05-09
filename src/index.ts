@@ -21,7 +21,7 @@ export function useTracked<T>(
   name: string,
   options: UseTrackedOptions = {},
 ): Ref<T> {
-  const isDev = options.dev !== undefined ? options.dev : true;
+  const isDev = options.dev ?? true;
 
   if (!isDev) {
     return source;
