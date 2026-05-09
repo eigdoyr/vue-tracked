@@ -25,4 +25,10 @@ describe("useTracked", () => {
     expect(history.value[0].from).toBe(0);
     expect(history.value[0].to).toBe(1);
   });
+
+  it("returns source as-is when in production", () => {
+    const source = ref(0);
+    const count = useTracked(source, "count", { dev: false });
+    expect(count).toBe(source);
+  });
 });

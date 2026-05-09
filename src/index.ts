@@ -8,13 +8,25 @@ export interface TrackedEntry<T = unknown> {
   timestamp: number;
 }
 
+interface UseTrackedOptions {
+  dev?: boolean;
+}
+
 // Module-level singleton so all useTracked calls share the same timeline.
 // This is intentional — the history is global to the app, not per-component.
-
 const _history = ref<TrackedEntry[]>([]);
 
-// TODO: add production no-op — useTracked should be a passthrough in prod builds
-export function useTracked<T>(source: Ref<T>, name: string): Ref<T> {
+export function useTracked<T>(
+  source: Ref<T>,
+  name: string,
+  options: UseTrackedOptions = {},
+): Ref<T> {
+  const isDev = options.dev !== undefined ? options.dev : true;
+
+  if (!isDev) {
+    return source;
+  }
+
   const tracked = ref<T>(source.value) as Ref<T>;
 
   watch(tracked, (to, from) => {
