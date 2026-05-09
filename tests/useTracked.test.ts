@@ -66,7 +66,6 @@ describe("useTracked", () => {
   it("tracks multiple named refs independently", async () => {
     const count = useTracked(ref(0), "count");
     const name = useTracked(ref(""), "name");
-
     count.value = 1;
     await nextTick();
     name.value = "eigdoyr";
@@ -75,5 +74,23 @@ describe("useTracked", () => {
     const { history } = useTrackedHistory();
     expect(history.value[0].name).toBe("count");
     expect(history.value[1].name).toBe("name");
+  });
+});
+
+describe("useTrackedHistory", () => {
+  beforeEach(() => {
+    const { clear } = useTrackedHistory();
+    clear();
+  });
+
+  it("clear() empties the history", async () => {
+    const count = useTracked(ref(0), "count");
+    count.value = 1;
+    await nextTick();
+
+    const { history, clear } = useTrackedHistory();
+    expect(history.value.length).toBe(1);
+    clear();
+    expect(history.value.length).toBe(0);
   });
 });
