@@ -17,17 +17,17 @@ interface UseTrackedOptions {
 const _history = ref<TrackedEntry[]>([]);
 
 export function useTracked<T>(
-  source: Ref<T>,
+  source: Ref<T, T>,
   name: string,
   options: UseTrackedOptions = {},
-): Ref<T> {
+): Ref<T, T> {
   const isDev = options.dev ?? true;
 
   if (!isDev) {
     return source;
   }
 
-  const tracked = ref<T>(source.value) as Ref<T>;
+  const tracked = ref<T>(source.value) as Ref<T, T>;
 
   watch(tracked, (to, from) => {
     _history.value.push({ name, from, to, timestamp: Date.now() });
@@ -41,5 +41,8 @@ export function useTrackedHistory() {
     _history.value = [];
   }
 
-  return { history: _history, clear };
+  return {
+    history: _history as Ref<TrackedEntry<unknown>[]>,
+    clear,
+  };
 }
